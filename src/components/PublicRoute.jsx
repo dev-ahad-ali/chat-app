@@ -8,7 +8,13 @@ function PublicRoute({ children }) {
   return !isLoggedIn ? (
     children
   ) : (
-    <Navigate to={location.pathname === '/' ? '/inbox' : location.pathname} />
+    <Navigate
+      to={
+        location.pathname === '/' || location.pathname === '/register'
+          ? '/inbox'
+          : location.pathname
+      }
+    />
   );
 }
 

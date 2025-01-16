@@ -5,6 +5,12 @@
       "password": "$2a$10$qxXTzwRLmS1as/xb3lltxOl29/boJRiLnsrRwgbPDmOOm.t1J20B.",
       "name": "Redux User",
       "id": 1
+    },
+    {
+      "email": "sumit@learnwithsumit.com",
+      "password": "$2a$10$gga7m9psmTIWnizHgGe30ebMoYvd1PbR2Y1bZrzo0kf6eNIJK1j6y",
+      "name": "Sumit",
+      "id": 2
     }
   ],
   "conversations": [
