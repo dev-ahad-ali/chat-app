@@ -1,4 +1,4 @@
-import { Link } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 import logoImage from '../assets/images/lws-logo-light.svg';
 import { useState } from 'react';
 import { useRegisterMutation } from '../features/auth/authApi.js';
@@ -13,8 +13,16 @@ export default function Register() {
   const [agreed, setAgreed] = useState(false);
   const [error, setError] = useState('');
   const [register, { data, isLoading, error: responseError }] = useRegisterMutation();
+  const navigate = useNavigate();
 
-  useEffect(() => {}, [data, isLoading, responseError]);
+  useEffect(() => {
+    if (responseError?.data) {
+      setError(responseError.data);
+    }
+    if (data?.accessToken && data?.user) {
+      navigate('/inbox');
+    }
+  }, [data, isLoading, navigate, responseError]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
