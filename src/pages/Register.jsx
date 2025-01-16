@@ -149,7 +149,7 @@ export default function Register() {
                 Sign up
               </button>
             </div>
-            <Error message={error} />
+            {error && <Error message={error} />}
           </form>
         </div>
       </div>
