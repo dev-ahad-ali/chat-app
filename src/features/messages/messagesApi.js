@@ -8,6 +8,13 @@ export const messagesApi = apiSlice.injectEndpoints({
           import.meta.env.VITE_MESSAGES_LIMIT
         }`,
     }),
+    addMessage: builder.mutation({
+      query: (data) => ({
+        url: '/messages',
+        method: 'POST',
+        body: data,
+      }),
+    }),
   }),
 });
 
