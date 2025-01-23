@@ -13,6 +13,30 @@ const router = jsonServer.router('db.json');
 const middlewares = jsonServer.defaults();
 const port = process.env.PORT || 9000;
 
+// response middleware
+router.render = (req, res) => {
+    const path = req.path;
+    const method = req.method;
+
+    // emit event for conversations
+    if (path.includes('/conversations') && (method === 'POST' || method === 'PATCH')) {
+        // emit server event
+        io.emit('conversation', {
+            body: res.locals.data,
+        });
+    }
+
+    // emit event for messages
+    if (path.includes('/messages') && method === 'POST') {
+        // emit server event
+        io.emit('message', {
+            body: res.locals.data,
+        });
+    }
+
+    return req.json(res.locals.data);
+};
+
 // Bind the router db to the app
 app.db = router.db;
 
