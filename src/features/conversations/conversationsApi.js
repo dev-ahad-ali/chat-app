@@ -20,22 +20,34 @@ export const conversationsApi = apiSlice.injectEndpoints({
                 body: data,
             }),
             async onQueryStarted(arg, { queryFulfilled, dispatch }) {
-                const conversation = await queryFulfilled;
+                // optimistic cache update start
+                const patchResult = dispatch(
+                    apiSlice.util.updateQueryData('getConversations', arg.sender, (draft) => {
+                        draft.push(arg.data);
+                    })
+                );
+                // optimistic cache update end
 
-                if (conversation?.data?.id) {
-                    const users = arg.data.users;
-                    const senderUser = users.find((user) => user?.email === arg.sender);
-                    const receiverUser = users.find((user) => user?.email !== arg.sender);
+                try {
+                    const conversation = await queryFulfilled;
 
-                    dispatch(
-                        messagesApi.endpoints.addMessage.initiate({
-                            conversationId: conversation.data.id,
-                            sender: senderUser,
-                            receiver: receiverUser,
-                            message: arg.data.message,
-                            timestamp: arg.data.timestamp,
-                        })
-                    );
+                    if (conversation?.data?.id) {
+                        const users = arg.data.users;
+                        const senderUser = users.find((user) => user?.email === arg.sender);
+                        const receiverUser = users.find((user) => user?.email !== arg.sender);
+
+                        dispatch(
+                            messagesApi.endpoints.addMessage.initiate({
+                                conversationId: conversation.data.id,
+                                sender: senderUser,
+                                receiver: receiverUser,
+                                message: arg.data.message,
+                                timestamp: arg.data.timestamp,
+                            })
+                        );
+                    }
+                } catch (error) {
+                    patchResult.undo();
                 }
             },
         }),
@@ -46,22 +58,48 @@ export const conversationsApi = apiSlice.injectEndpoints({
                 body: data,
             }),
             async onQueryStarted(arg, { queryFulfilled, dispatch }) {
-                const conversation = await queryFulfilled;
+                // optimistic cache update start
+                const patchResult = dispatch(
+                    apiSlice.util.updateQueryData('getConversations', arg.sender, (draft) => {
+                        const draftConversation = draft.find((c) => c.id == arg.id);
+                        draftConversation.message = arg.data.message;
+                        draftConversation.timestamp = arg.data.timestamp;
+                    })
+                );
+                // optimistic cache update end
 
-                if (conversation?.data?.id) {
-                    const users = arg.data.users;
-                    const senderUser = users.find((user) => user?.email === arg.sender);
-                    const receiverUser = users.find((user) => user?.email !== arg.sender);
+                try {
+                    const conversation = await queryFulfilled;
 
-                    dispatch(
-                        messagesApi.endpoints.addMessage.initiate({
-                            conversationId: conversation.data.id,
-                            sender: senderUser,
-                            receiver: receiverUser,
-                            message: arg.data.message,
-                            timestamp: arg.data.timestamp,
-                        })
-                    );
+                    if (conversation?.data?.id) {
+                        const users = arg.data.users;
+                        const senderUser = users.find((user) => user?.email === arg.sender);
+                        const receiverUser = users.find((user) => user?.email !== arg.sender);
+
+                        const res = await dispatch(
+                            messagesApi.endpoints.addMessage.initiate({
+                                conversationId: conversation.data.id,
+                                sender: senderUser,
+                                receiver: receiverUser,
+                                message: arg.data.message,
+                                timestamp: arg.data.timestamp,
+                            })
+                        ).unwrap();
+
+                        // update cache pessimistically start
+                        dispatch(
+                            apiSlice.util.updateQueryData(
+                                'getMessages',
+                                res.conversationId.toString(),
+                                (draft) => {
+                                    draft.push(res);
+                                }
+                            )
+                        );
+                        // update cache pessimistically end
+                    }
+                } catch (err) {
+                    patchResult.undo();
                 }
             },
         }),

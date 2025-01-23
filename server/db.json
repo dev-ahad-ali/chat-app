@@ -29,8 +29,8 @@
           "id": 2
         }
       ],
-      "message": "Hello 2",
-      "timestamp": 1737632177345,
+      "message": "Here are some more messages for checking purposes...",
+      "timestamp": 1737657576301,
       "id": 1
     }
   ],
@@ -68,6 +68,57 @@
       "message": "Hello 2",
       "timestamp": 1737632177345,
       "id": 2
+    },
+    {
+      "conversationId": 1,
+      "sender": {
+        "email": "sumit@learnwithsumit.com",
+        "name": "Sumit Saha",
+        "id": 1
+      },
+      "receiver": {
+        "email": "akash@learnwithsumit.com",
+        "password": "$2a$10$Oc6jXnK6/pbSqmkngo/b.OhsU3JRf4OU1h9QwIoqz8ZUpG/hgHq72",
+        "name": "Akash Ahmed",
+        "id": 2
+      },
+      "message": "Hello 3",
+      "timestamp": 1737656532898,
+      "id": 3
+    },
+    {
+      "conversationId": 1,
+      "sender": {
+        "email": "sumit@learnwithsumit.com",
+        "name": "Sumit Saha",
+        "id": 1
+      },
+      "receiver": {
+        "email": "akash@learnwithsumit.com",
+        "password": "$2a$10$Oc6jXnK6/pbSqmkngo/b.OhsU3JRf4OU1h9QwIoqz8ZUpG/hgHq72",
+        "name": "Akash Ahmed",
+        "id": 2
+      },
+      "message": "Hello from the Redux store",
+      "timestamp": 1737657512232,
+      "id": 4
+    },
+    {
+      "conversationId": 1,
+      "sender": {
+        "email": "sumit@learnwithsumit.com",
+        "name": "Sumit Saha",
+        "id": 1
+      },
+      "receiver": {
+        "email": "akash@learnwithsumit.com",
+        "password": "$2a$10$Oc6jXnK6/pbSqmkngo/b.OhsU3JRf4OU1h9QwIoqz8ZUpG/hgHq72",
+        "name": "Akash Ahmed",
+        "id": 2
+      },
+      "message": "Here are some more messages for checking purposes...",
+      "timestamp": 1737657576301,
+      "id": 5
     }
   ]
 }
