@@ -1,3 +1,4 @@
+import { io } from 'socket.io-client';
 import { apiSlice } from '../api/apiSlice.js';
 import { messagesApi } from '../messages/messagesApi.js';
 
@@ -8,6 +9,38 @@ export const conversationsApi = apiSlice.injectEndpoints({
                 `/conversations?participants_like=${email}&_sort=timestamp&_order=desc&_page=1&_limit=${
                     import.meta.env.VITE_PAGINATION_LIMIT
                 }`,
+            async onCacheEntryAdded(arg, { updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
+                // create socket
+                const socket = io(import.meta.env.VITE_API_URL, {
+                    reconnectionDelay: 1000,
+                    reconnection: true,
+                    reconnectionAttemps: 10,
+                    transports: ['websocket'],
+                    agent: false,
+                    upgrade: false,
+                    rejectUnauthorized: false,
+                });
+
+                try {
+                    await cacheDataLoaded;
+                    socket.on('conversation', (data) => {
+                        updateCachedData((draft) => {
+                            const conversation = draft.find((c) => c.id == data?.data?.id);
+                            if (conversation?.id) {
+                                conversation.message = data.data.message;
+                                conversation.timestamp = data.data.timestamp;
+                            } else {
+                                //TODO: add logic for new conversation
+                            }
+                        });
+                    });
+                } catch (error) {
+                    console.log(error);
+                }
+
+                await cacheEntryRemoved;
+                socket.close();
+            },
         }),
         getConversation: builder.query({
             query: ({ userEmail, participantEmail }) =>

@@ -20,7 +20,6 @@ router.render = (req, res) => {
 
     // emit event for conversations
     if (path.includes('/conversations') && (method === 'POST' || method === 'PATCH')) {
-        // emit server event
         io.emit('conversation', {
             body: res.locals.data,
         });
@@ -28,13 +27,12 @@ router.render = (req, res) => {
 
     // emit event for messages
     if (path.includes('/messages') && method === 'POST') {
-        // emit server event
         io.emit('message', {
             body: res.locals.data,
         });
     }
 
-    return req.json(res.locals.data);
+    return res.json(res.locals.data);
 };
 
 // Bind the router db to the app
