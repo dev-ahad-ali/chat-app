@@ -9,6 +9,13 @@ export const conversationsApi = apiSlice.injectEndpoints({
                 `/conversations?participants_like=${email}&_sort=timestamp&_order=desc&_page=1&_limit=${
                     import.meta.env.VITE_PAGINATION_LIMIT
                 }`,
+            transformResponse(apiResponse, meta) {
+                const totalCount = meta.response.headers.get('X-Total-Count');
+                return {
+                    data: apiResponse,
+                    totalCount,
+                };
+            },
             async onCacheEntryAdded(arg, { updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
                 // create socket
                 const socket = io(import.meta.env.VITE_API_URL, {
@@ -42,6 +49,26 @@ export const conversationsApi = apiSlice.injectEndpoints({
                 socket.close();
             },
         }),
+        getMoreConversations: builder.query({
+            query: ({ email, page }) =>
+                `/conversations?participants_like=${email}&_sort=timestamp&_order=desc&_page=${page}&_limit=${
+                    import.meta.env.VITE_PAGINATION_LIMIT
+                }`,
+            async onQueryStarted({ email }, { queryFulfilled, dispatch }) {
+                const conversations = await queryFulfilled;
+
+                if (conversations?.data?.length > 0) {
+                    dispatch(
+                        apiSlice.util.updateQueryData('getConversations', email, (draft) => {
+                            return {
+                                data: [...draft.data, ...conversations.data],
+                                totalCount: Number(draft.totalCount),
+                            };
+                        })
+                    );
+                }
+            },
+        }),
         getConversation: builder.query({
             query: ({ userEmail, participantEmail }) =>
                 `/conversations?participants_like=${userEmail}-${participantEmail}&participants_like=${participantEmail}-${userEmail}`,
@@ -56,7 +83,7 @@ export const conversationsApi = apiSlice.injectEndpoints({
                 // optimistic cache update start
                 const patchResult = dispatch(
                     apiSlice.util.updateQueryData('getConversations', arg.sender, (draft) => {
-                        draft.push(arg.data);
+                        draft.data.push(arg.data);
                     })
                 );
                 // optimistic cache update end
@@ -94,7 +121,7 @@ export const conversationsApi = apiSlice.injectEndpoints({
                 // optimistic cache update start
                 const patchResult = dispatch(
                     apiSlice.util.updateQueryData('getConversations', arg.sender, (draft) => {
-                        const draftConversation = draft.find((c) => c.id == arg.id);
+                        const draftConversation = draft.data.find((c) => c.id == arg.id);
                         draftConversation.message = arg.data.message;
                         draftConversation.timestamp = arg.data.timestamp;
                     })
